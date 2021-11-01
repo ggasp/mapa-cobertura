@@ -1,0 +1,5 @@
+.DS_Store
+kml/.DS_Store
+*_reduced.kml
+*-orig.kml
+/*.kml
