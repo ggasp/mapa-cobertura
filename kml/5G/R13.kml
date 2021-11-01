@@ -10,6 +10,7 @@
     <Document id="Sitio_CERXB">
       <name>Sitio_CERXB</name>
       <Placemark id="Sitio_CERXB.1">
+	    <Style><LineStyle><color>FF36B9FA</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
         <ExtendedData>
           <SchemaData schemaUrl="#Sitio_CERXB.schema">
             <SimpleData name="LEGEND"><![CDATA[SS-RSRP Level (DL) (dBm) >=-91.15]]></SimpleData>
