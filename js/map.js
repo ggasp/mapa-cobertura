@@ -1,5 +1,16 @@
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Para optimizar la precisión de los archivos KML y reducir su tamaño:
+// Ejecutar python3 reduceKML.py <kml-file>
+// 
+// Implementado según lo descrito en: 
+// https://www.gearthblog.com/blog/archives/2016/03/making-kml-files-smaller-reducing-precision.html
+// 
+// Cualquier duda, preguntame: gabriel at gasparolo.com
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 var map, activeLayer;
 var region_global, red_global;
+
 var regiones = {
     "Región de Tarapacá": "R01",	
     "Región de Antofagasta": "R02",	
@@ -18,6 +29,7 @@ var regiones = {
     "Región de Arica y Parinacota": "R15",
     "Región de Ñuble": "R16"
 };
+
 var regiones_en = {
     "Tarapacá Region": "R01",	
     "Antofagasta Region": "R02",	
@@ -37,6 +49,7 @@ var regiones_en = {
     "Arica y Parinacota Region": "R15",
     "Ñuble Region": "R16" 
 };
+
 var regiones_bounds = {
     "Región de Tarapacá": [-19.9708,-68.6234,-20.9063, -69.9870],	
     "Región de Antofagasta": [-23.1189, -69.4817, -24.0339, -70.8453],	
