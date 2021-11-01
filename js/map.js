@@ -37,6 +37,25 @@ var regiones_en = {
     "Arica y Parinacota Region": "R15",
     "Ñuble Region": "R16" 
 };
+var regiones_bounds = {
+    "Región de Tarapacá": [-19.9708,-68.6234,-20.9063, -69.9870],	
+    "Región de Antofagasta": [-23.1189, -69.4817, -24.0339, -70.8453],	
+    "Región de Atacama": [-26.8547, -69.6094, -27.7419, -70.9731],	
+    "Región de Coquimbo": [-29.6916, -70.9394, -30.1243, -71.6212],	
+    "Región de Valparaíso": [-32.7376, -71.0733, -33.1565, -71.7551],
+    "Región del Libertador General Bernardo OHiggins": [-33.9103, -70.1408, -34.7348, -71.5045],
+    "Región del Maule": [-34.7574, -70.6778, -35.5736, -72.0415],
+    "Región del Biobío": [-36.3007, -71.9289, -37.1012, -73.2925],
+    "Región de la Araucanía": [-38.6448, -72.0332, -39.0336, -72.7151],
+    "Región de Los Lagos": [-41.1661, -72.4871, -41.5410, -73.1689],
+    "Región Aysén del General Carlos Ibáñez del Campo": [-44.6315, -72.2131, -46.0351, -74.9405],
+    "Región de Magallanes y de la Antártica Chilena": [-52.8708, -70.1724, -53.4692, -71.5361],
+    "Región Metropolitana de Santiago": [-33.3529,-70.4910,-33.5611, -70.8319], 
+    "Región de Los Ríos": [-39.6094, -72.9760, -39.9929, -73.6573],
+    "Región de Arica y Parinacota": [-18.3330, -69.7192, -18.8062, -70.4011],
+    "Región de Ñuble": [-36.5574, -72.0138, -36.6575, -72.1843]
+};
+
 
 function fetchKML(kmlFile, lat, lng) {
     $("#spinner").css("visibility","visible");
@@ -57,7 +76,13 @@ function fetchKML(kmlFile, lat, lng) {
             map.panTo( new L.LatLng(lat, lng) );
             var marker = L.marker( [lat, lng] ).addTo(map);
         } else {
-            const bounds = activeLayer.getBounds();
+            var bounds = activeLayer.getBounds();
+            if(bounds._southWest == undefined) {
+                var coords = regiones_bounds[region_global];
+                var c1 = L.latLng(coords[0], coords[1]);
+                var c2 = L.latLng(coords[2], coords[3]);
+                bounds = L.latLngBounds(c1, c2);
+            }
             map.fitBounds(bounds);
         }
     });	
@@ -66,7 +91,9 @@ function fetchKML(kmlFile, lat, lng) {
 function getNetwork() {
     var red;
         
-    if ( $("#4G").is(":checked") ) {
+    if ( $("#5G").is(":checked") ) {
+        red = "5G";
+    } else if ( $("#4G").is(":checked") ) {
         red = "4G";
     } else if ( $("#3G").is(":checked") ) {
         red = "3G";
@@ -192,7 +219,8 @@ function addr_filter(e) {
     var cb = {
         "2G": "#2G",
         "3G": "#3G",
-        "4G": "#4G"
+        "4G": "#4G",
+        "5G": "#5G"
     };
     
     if( e.value === red_global ) {

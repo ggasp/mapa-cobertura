@@ -259,35 +259,35 @@ div#regiones {
     background: #fff;
 }
 
-input[type="checkbox"].signal3g:hover+label:before {
+input[type="checkbox"].signal2g:hover+label:before {
     background: #C8C8C8;
+}
+
+input[type="checkbox"].signal3g:hover+label:before {
+    background: #3E97EB;
+}
+
+input[type="checkbox"].signal5g:hover+label:before {
+    background: #FAB936;
 }
 
 input[type="checkbox"].signal4g:hover+label:before {
-    background: #3E97EB;
-}
-
-input[type="checkbox"].signal4g700:hover+label:before {
-    background: #FAB936;
-}
-
-input[type="checkbox"].signal4g2600:hover+label:before {
     background: #FA3636;
 }
 
-input[type="checkbox"].signal3g:checked+label:before {
+input[type="checkbox"].signal2g:checked+label:before {
     background: #C8C8C8;
 }
 
-input[type="checkbox"].signal4g:checked+label:before {
+input[type="checkbox"].signal3g:checked+label:before {
     background: #3E97EB;
 }
 
-input[type="checkbox"].signal4g700:checked+label:before {
+input[type="checkbox"].signal5g:checked+label:before {
     background: #FAB936;
 }
 
-input[type="checkbox"].signal4g2600:checked+label:before {
+input[type="checkbox"].signal4g:checked+label:before {
     background: #FA3636;
 }
 
