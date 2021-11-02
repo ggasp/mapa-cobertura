@@ -51,8 +51,10 @@ for i in re.findall('<coordinates>(.*?)</coordinates>',all_text_1):
                 fixed_part+=' ' + p1 + ',' + p2
                 x1= float(p1)
                 x2= float(p2)
-    if (cant_p > 3): all_text_2=re.sub(i,fixed_part,all_text_2,1) # no me gustan los triangulos
-
+    if (cant_p > 3): # no me gustan los triangulos
+        all_text_2=re.sub(i,fixed_part,all_text_2,1) 
+    else: 
+        all_text_2=re.sub(i,'',all_text_2,1) 
 f=open(kml_loc,'wt')
 f.write(all_text_2)
 f.close()
