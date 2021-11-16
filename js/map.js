@@ -8,10 +8,13 @@
 // Cualquier duda, preguntame: gabriel at gasparolo.com
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-var map, activeLayer;
+const RED_ENCENDIDA = 0
+const RED_PLANIFICADA = 1
+const activeLayer = [];
+var map;
 var region_global, red_global;
 
-var regiones = {
+const regiones = {
     "Región de Tarapacá": "R01",	
     "Región de Antofagasta": "R02",	
     "Región de Atacama": "R03",	
@@ -30,7 +33,7 @@ var regiones = {
     "Región de Ñuble": "R16"
 };
 
-var regiones_en = {
+const regiones_en = {
     "Tarapacá Region": "R01",	
     "Antofagasta Region": "R02",	
     "Atacama Region": "R03",	
@@ -50,7 +53,7 @@ var regiones_en = {
     "Ñuble Region": "R16" 
 };
 
-var regiones_bounds = {
+const regiones_bounds = {
     "Región de Tarapacá": [-19.9708,-68.6234,-20.9063, -69.9870],	
     "Región de Antofagasta": [-23.1189, -69.4817, -24.0339, -70.8453],	
     "Región de Atacama": [-26.8547, -69.6094, -27.7419, -70.9731],	
@@ -69,16 +72,63 @@ var regiones_bounds = {
     "Región de Ñuble": [-36.5574, -72.0138, -36.6575, -72.1843]
 };
 
+function hideLayers() {
+    for( let l in activeLayer ) map.removeLayer( activeLayer[l] ); 
+}
 
-function fetchKML(kmlFile, lat, lng) {
+function showLayers() {
+    for ( let l in activeLayer ) map.addLayer( activeLayer[l] );
+}
+
+function deleteLayers() {
+    hideLayers();
+    activeLayer.length = 0; 
+}
+
+function centerOnLayers() {
+    let box, corner1, corner2;
+    let minLat, minLong;
+    let maxLat, maxLong;
+
+    for ( let l in activeLayer ) {
+
+        box = activeLayer[l].getBounds();
+        corner1 = box.getNorthEast();
+        corner2 = box.getSouthWest();
+
+        if( corner1 && corner2 ) {
+            if( !minLat || corner1.lat < minLat ) minLat = corner1.lat; 
+            if( !maxLat || corner2.lat > maxLat ) maxLat = corner2.lat; 
+            if( !minLong || corner1.lng < minLong ) minLong = corner1.lng; 
+            if( !maxLong || corner2.lng > maxLong ) maxLong = corner2.lng; 
+        }
+
+    }
+
+    if( !minLat || !maxLat || !minLong || !maxLong ) {
+        let coords = regiones_bounds[region_global];
+        let c1 = L.latLng(coords[0], coords[1]);
+        let c2 = L.latLng(coords[2], coords[3]);
+        box = L.latLngBounds(c1, c2);
+    } else {
+        let c1 = L.latLng(minLat, minLong);
+        let c2 = L.latLng(maxLat, maxLong);
+        box = L.latLngBounds(c1, c2);
+    }
+
+    map.fitBounds(box);
+
+}
+
+function fetchKML( layer, kmlFile, lat, lng) {
     $("#spinner").css("visibility","visible");
 	fetch( kmlFile )
 	.then(res => res.text())
 	.then(kmltext => {
 		const parser = new DOMParser();
 		const kml = parser.parseFromString(kmltext, 'text/xml');
-		activeLayer = new L.KML(kml);
-		map.addLayer(activeLayer);
+		activeLayer[layer] = new L.KML(kml);
+		map.addLayer(activeLayer[layer]);
 	})
     .then( () => {
         $("#spinner").css("visibility","hidden");
@@ -89,19 +139,12 @@ function fetchKML(kmlFile, lat, lng) {
             map.panTo( new L.LatLng(lat, lng) );
             var marker = L.marker( [lat, lng] ).addTo(map);
         } else {
-            var bounds = activeLayer.getBounds();
-            if(bounds._southWest == undefined) {
-                var coords = regiones_bounds[region_global];
-                var c1 = L.latLng(coords[0], coords[1]);
-                var c2 = L.latLng(coords[2], coords[3]);
-                bounds = L.latLngBounds(c1, c2);
-            }
-            map.fitBounds(bounds);
+            centerOnLayers();
         }
     });	
 }
 
-function getNetwork() {
+function getNetworkId() {
     var red;
         
     if ( $("#5G").is(":checked") ) {
@@ -113,23 +156,41 @@ function getNetwork() {
     } else if ( $("#2G").is(":checked") ) {
         red = "2G";
     } else {
-        red = null;
+        red = "4G";
     }
     
     return red;    
 }
 
-function load_map_for_region( region, lat, lng ) {
-	var red, kmlFile;
+function getRegionId( regionName ) {
+    let regionId;
 
-    region_global = region ? region : "Región Metropolitana de Santiago";
-    
-    red	= getNetwork() ? getNetwork() : "4G"; 
-    
-    var nro_region = regiones[region_global] ? regiones[region_global] : regiones_en[region_global]; 
-	kmlFile =  nro_region ? "kml/".concat( red, "/", nro_region, ".kml") : "kml/".concat( red, "/", "R13", ".kml");
+    region_global = regionName ? regionName : "Región Metropolitana de Santiago";
+
+    let opciones = [ regiones[region_global], regiones_en[region_global], "R13" ]; 
+
+    for ( let o in opciones ) {
+        regionId = opciones[o];
+        if ( regionId ) break;
+    }
+
+    return regionId;
+}
+
+function load_map_for_region( region, lat, lng ) {
+	var red, nro_region, kmlFile;
+
+    red	= getNetworkId(); 
+    nro_region = getRegionId( region );
+    kmlFile =  "kml/".concat( red, "/", nro_region, ".kml");
+	fetchKML( RED_ENCENDIDA, kmlFile, lat, lng );
 	
-	fetchKML( kmlFile, lat, lng );
+    // Para la red 5G, mostraremos también los sitios planificados
+    if( red === "5G" ) {
+        kmlFile =  "kml/".concat( red, "/", nro_region, "-planificado.kml");
+        fetchKML( RED_ENCENDIDA, kmlFile, lat, lng );    
+    }
+
 
 }
 
@@ -151,8 +212,6 @@ function load_map() {
 function choosenAddr (lat, lng, osm_type, lugar) {
     var r, region;
     
-    if ( activeLayer ) map.removeLayer( activeLayer );
-
     var l = lugar.split(",");
     for ( var i=0; i<l.length; i++) {
         r = l[i].match(/Regi(o|ó)n/g);
@@ -171,8 +230,8 @@ function choosenRegion( region ) {
     $("#region").attr('placeholder', region);
     document.getElementById("regiones").style.visibility = "hidden";
     document.getElementById("regiones").style.display = "none";    
-    if ( activeLayer ) map.removeLayer( activeLayer );
     region_global = region;
+    deleteLayers();
     load_map_for_region(region);
     
 }
@@ -238,15 +297,15 @@ function addr_filter(e) {
     
     if( e.value === red_global ) {
         if ( $(cb[e.value]).is(":checked") ) {
-            if ( activeLayer ) map.addLayer( activeLayer );
+            showLayers();
         } else {
-            if ( activeLayer ) map.removeLayer( activeLayer ); 
+            hideLayers();
         }
     } else {
         if ( $(cb[e.value]).is(":checked") ) {
             $(cb[red_global]).prop("checked", false);
-            if ( activeLayer ) map.removeLayer( activeLayer ); 
             red_global = e.value;
+            deleteLayers(); 
             load_map_for_region( region_global );
         }
     }
@@ -269,7 +328,7 @@ if (event.which === 13 || event.keyCode === 13) {
 }
 });
 
-$(getNetwork());
+$(getNetworkId());
 $(load_map);
 red_global="4G";
 $($("#4G").click());

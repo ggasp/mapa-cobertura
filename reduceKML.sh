@@ -30,9 +30,14 @@ for f in $(ls kml/4G/*.kml); do
 done
 
 echo Procesando para Tecnologia 5G
-for f in $(ls kml/5G/*.kml); do
+for f in $(find kml/5G/. -name 'R??.kml'); do
     echo Procesando archivo $f
     cp "$f" "${f%.*}-original.kml"
     python3 reduceKML.py $f 5G
+done
+for f in $(find kml/5G/. -name 'R??-planificado.kml'); do
+    echo Procesando archivo $f
+    cp "$f" "${f%.*}-original.kml"
+    python3 reduceKML.py $f Pre5G
 done
 

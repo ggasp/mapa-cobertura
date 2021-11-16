@@ -21,7 +21,8 @@ style_replace= {
     '2G': '\g<1><Style><LineStyle><color>FFA8A8A8</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>\g<2>',
     '3G': '\g<1><Style><LineStyle><color>FFEB973E</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>\g<2>',
     '4G': '\g<1><Style><LineStyle><color>FF3636FA</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>\g<2>',
-    '5G': '\g<1><Style><LineStyle><color>FF36B9FA</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>\g<2>'
+    '5G': '\g<1><Style><LineStyle><color>FF36B9FA</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>\g<2>',
+    'Pre5G': '\g<1><Style><LineStyle><color>FF36B9FA</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>\g<2>'
 }
 
 all_text_0=''.join(lines)
@@ -55,6 +56,9 @@ for i in re.findall('<coordinates>(.*?)</coordinates>',all_text_1):
         all_text_2=re.sub(i,fixed_part,all_text_2,1) 
     else: 
         all_text_2=re.sub(i,'',all_text_2,1) 
+
+all_text_2=re.sub('<Polygon> <outerBoundaryIs> <LinearRing> <coordinates></coordinates> </LinearRing> </outerBoundaryIs> </Polygon> ', '', all_text_2) # quitamos los poligonos que quedaron vacíos
+
 f=open(kml_loc,'wt')
 f.write(all_text_2)
 f.close()
